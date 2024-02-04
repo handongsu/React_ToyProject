@@ -7,21 +7,25 @@ import EventItem from "./EventItem";
 
 export default function FindEventSection() {
   const searchElement = useRef();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchPath, setSearchPath] = useState();
 
-  const { data, isPending, isError, error } = useQuery({
-    queryKey: ["events", { search: searchTerm }],
-    queryFn: () => fetchEvents(searchElement.current.value),
+  //isLoading & isPending : isLoading의 경우 쿼리가 비활성화됐다고 해서 true가 되지 않는다.
+
+  const { data, isLoading, isError, error } = useQuery({
+    //키가 이벤트 전체를 읽어오는 것이 아니기 때문에 search를 추가로 설정
+    queryKey: ["events", { search: searchPath }],
+    queryFn: ({ signal }) => fetchEvents({ signal, searchPath }),
+    enabled: searchPath !== undefined, //true=요청하겠다, false= 요청x 빈문자열이 아니라면 true 데이터가 없고, 검색어 입력 후 빈 값을 검색했을 때 모든 데이터 뜨게 하고 싶다면 undefined
   });
 
   function handleSubmit(event) {
     event.preventDefault();
-    setSearchTerm(searchElement.current.current.value);
+    setSearchPath(searchElement.current.current.value);
   }
 
   let content = <p>Please enter a search term and to find events.</p>;
 
-  if (isPending) {
+  if (isLoading) {
     content = <LoadingIndicator />;
   }
 
