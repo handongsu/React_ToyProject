@@ -13,14 +13,14 @@ export default function FindEventSection() {
 
   const { data, isLoading, isError, error } = useQuery({
     //키가 이벤트 전체를 읽어오는 것이 아니기 때문에 search를 추가로 설정
-    queryKey: ["events", { search: searchTerm }],
-    queryFn: ({ signal }) => fetchEvents({ signal, searchTerm }),
+    queryKey: ["events", { searchTerm: searchTerm }],
+    queryFn: ({ signal, queryKey }) => fetchEvents({ signal, ...queryKey[1] }),
     enabled: searchTerm !== undefined, //true=요청하겠다, false= 요청x 빈문자열이 아니라면 true 데이터가 없고, 검색어 입력 후 빈 값을 검색했을 때 모든 데이터 뜨게 하고 싶다면 undefined
   });
 
   function handleSubmit(event) {
     event.preventDefault();
-    setsearchTerm(searchElement.current.current.value);
+    setsearchTerm(searchElement.current.value);
   }
 
   let content = <p>Please enter a search term and to find events.</p>;
